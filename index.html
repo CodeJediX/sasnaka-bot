@@ -215,12 +215,13 @@
 
 <script>
 // ==========================================
-// 1. CONFIGURATION (PASTE API KEY HERE)
+// 1. CONFIGURATION
 // ==========================================
-const API_KEY =AIzaSyCjioyG9XymsjBqFqGjfMBgfJ5AU-oyF7g ; 
+// IMPORTANT: Generate a NEW API key from Google AI Studio and paste it inside the quotes below.
+const API_KEY = "AIzaSyAYL2HePusRySc2lZRFhnHIAEJHF1yfLGo"; 
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-// Knowledge Base (Moved from Server to Client)
+// Knowledge Base
 const BASE_KNOWLEDGE = `
 You are the official AI Assistant for "Sasnaka Sansada", a non-profit in Sri Lanka.
 Your persona: Mentor, Encouraging, Knowledgeable, and Kind.
@@ -357,6 +358,7 @@ async function sendMessage() {
     const fullPrompt = `${BASE_KNOWLEDGE}\n\n${langInstruction}`;
 
     try {
+        // USING GEMINI 2.5 FLASH AS REQUESTED
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
         
         const response = await fetch(url, {
@@ -375,7 +377,8 @@ async function sendMessage() {
             appendMessage(data.candidates[0].content.parts[0].text, false);
         } else {
             console.error("API Error:", data);
-            appendMessage("API Error. Check console.", false);
+            const msg = data.error?.message || "Error connecting to AI.";
+            appendMessage("API Error: " + msg, false);
         }
     } catch (err) {
         typingInd.style.display = 'none';
