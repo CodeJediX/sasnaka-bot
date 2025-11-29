@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sasnaka Sansada AI Assistant</title>
+    
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        @keyframes fadeInSlide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+        .msg-animate { animation: fadeInSlide 0.3s ease-out forwards; }
+        .typing-dot { animation: bounce 0.6s infinite alternate; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        .scrollbar-custom::-webkit-scrollbar { width: 6px; }
+        .scrollbar-custom::-webkit-scrollbar-track { background: #f1f1f1; }
+        .scrollbar-custom::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
+        /* Markdown Styles inside Chat */
+        .prose p { margin-bottom: 0.5rem; }
+        .prose ul { list-style-type: disc; padding-left: 1.2rem; margin-bottom: 0.5rem; }
+        .prose a { color: #2563eb; text-decoration: underline; }
+        
+        @media (max-width: 640px) {
+            #chat-window { width: 100% !important; height: 100% !important; bottom: 0 !important; right: 0 !important; border-radius: 0 !important; max-height: 100vh !important; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans h-screen relative overflow-hidden selection:bg-blue-200">
+
+    <!-- Background -->
+    <div class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 z-0">
+        <h1 class="text-4xl md:text-6xl font-extrabold text-blue-900 opacity-10">SASNAKA AI</h1>
+        <p class="text-gray-400 mt-4 max-w-lg mx-auto">Powered by Google Gemini</p>
+    </div>
+
+    <!-- Toggle Button -->
+    <button id="chat-toggle-btn" onclick="toggleChat()" 
+        class="fixed bottom-6 right-6 z-50 bg-blue-700 hover:bg-blue-800 text-white p-4 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center group focus:outline-none focus:ring-4 focus:ring-blue-300">
+        <i data-lucide="message-circle" id="icon-open" class="w-8 h-8"></i>
+        <i data-lucide="x" id="icon-close" class="w-8 h-8 hidden"></i>
+    </button>
+
+    <!-- Chat Window -->
+    <div id="chat-window" class="fixed bottom-24 right-6 w-96 h-[600px] max-h-[80vh] bg-white rounded-2xl shadow-2xl z-40 flex flex-col transform scale-90 opacity-0 pointer-events-none transition-all duration-300 origin-bottom-right border border-gray-200 overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-800 to-blue-600 text-white p-4 flex items-center justify-between shadow-md shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="relative">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-blue-700 font-bold border-2 border-blue-100 shadow-inner">AI</div>
+                    <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-blue-700 rounded-full animate-pulse"></span>
+                </div>
+                <div>
+                    <h3 class="font-bold text-base leading-tight">Sasnaka AI</h3>
+                    <p class="text-xs text-blue-100 opacity-90">Powered by Gemini</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="clearChatHistory()" title="Clear Chat" class="p-2 hover:bg-white/20 rounded-full transition-colors"><i data-lucide="trash-2" class="w-5 h-5 text-white"></i></button>
+                <button onclick="toggleChat()" class="md:hidden p-2 hover:bg-white/20 rounded-full transition-colors"><i data-lucide="chevron-down" class="w-5 h-5 text-white"></i></button>
+            </div>
+        </div>
+
+        <!-- Messages Area -->
+        <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 scrollbar-custom">
+            <div class="text-center text-xs text-gray-400 my-4 flex items-center gap-2 justify-center">
+                <span class="h-px w-12 bg-gray-300"></span><span>Secure AI Chat</span><span class="h-px w-12 bg-gray-300"></span>
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="typing-indicator" class="hidden px-6 py-2 bg-gray-50 absolute bottom-[70px] left-0 w-full z-10 transition-opacity">
+            <div class="flex items-center gap-2 text-gray-500 text-xs font-medium">
+                <span class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></span>
+                <span class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></span>
+                <span class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></span>
+                Thinking...
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-3 bg-white border-t border-gray-100 shrink-0">
+            <div id="file-preview" class="hidden mb-2 p-2 bg-blue-50 rounded-lg flex justify-between items-center text-xs text-blue-700 border border-blue-100">
+                <span class="truncate max-w-[200px]" id="file-name">filename.pdf</span>
+                <button onclick="clearFile()" class="text-red-500 hover:text-red-700"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="flex items-end gap-2">
+                <input type="file" id="file-upload" class="hidden" onchange="handleFileSelect(this)">
+                <button onclick="triggerFileUpload()" class="p-2 text-gray-400 hover:text-blue-600 hover:bg-gray-100 rounded-full transition-all"><i data-lucide="paperclip" class="w-5 h-5"></i></button>
+                <textarea id="user-input" rows="1" class="flex-1 bg-gray-100 text-gray-800 border-0 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none max-h-24 text-sm scrollbar-custom" placeholder="Ask anything..." oninput="autoResize(this)" onkeydown="handleEnter(event)"></textarea>
+                <button onclick="handleSend()" class="p-3 bg-blue-700 text-white rounded-full hover:bg-blue-800 shadow-md transform hover:scale-105 transition-all" id="send-btn"><i data-lucide="send" class="w-5 h-5 fill-current"></i></button>
+            </div>
+            <div class="text-center mt-2"><p class="text-[10px] text-gray-400">Powered by <a href="https://sasnaka.org" class="hover:text-blue-500 transition">Sasnaka Sansada</a></p></div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // ============================================
+        // 1. CONFIGURATION (PASTE YOUR KEY HERE)
+        // ============================================
+        const CONFIG = {
+            // 👇👇👇 PASTE YOUR KEY BELOW BETWEEN THE QUOTES 👇👇👇
+            apiKey: "AIzaSyCLz_vjf6-yhaPRTQF4nMdcXl6CxModTkg", 
+            // 👆👆👆 EXAMPLE: "AIzaSyD......"
+            
+            botName: "Sasnaka AI",
+            storageKey: "sasnaka_ai_final_v1",
+            whatsappNumber: "94712345678"
+        };
+
+        // This is the "Brain" of the AI. It tells it who it is.
+        const SYSTEM_PROMPT = `
+        You are the helpful AI assistant for "Sasnaka Sansada", a government-registered charitable social service organization in Sri Lanka established in 1997.
+        
+        KEY FACTS TO USE:
+        - Mission: Building a just and equitable society based on Buddhist philosophy.
+        - Activities: Conducting O/L Mathematics seminars, volunteer projects, blood donation campaigns, and leadership training.
+        - Contact Phone: +94 112 234 645
+        - Email: info@sasnaka.org
+        - Website: https://sasnaka.org
+        
+        BEHAVIOR:
+        - Keep answers short, friendly, and encouraging.
+        - Use emojis occasionally.
+        - If someone asks to contact, mention the phone number and that you can open WhatsApp.
+        - If you don't know an answer, ask them to contact the office directly.
+        - Formatting: You can use bolding and bullet points.
+        `;
+
+        // ============================================
+        // 2. STATE & ELEMENTS
+        // ============================================
+        const state = { isOpen: false, isTyping: false, currentFile: null };
+        const els = {
+            window: document.getElementById('chat-window'),
+            messages: document.getElementById('messages-container'),
+            input: document.getElementById('user-input'),
+            toggleBtn: document.getElementById('chat-toggle-btn'),
+            openIcon: document.getElementById('icon-open'),
+            closeIcon: document.getElementById('icon-close'),
+            typingIndicator: document.getElementById('typing-indicator'),
+            filePreview: document.getElementById('file-preview'),
+            fileName: document.getElementById('file-name'),
+            fileInput: document.getElementById('file-upload')
+        };
+
+        // ============================================
+        // 3. INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            loadHistory();
+            if (els.messages.children.length <= 1) {
+                setTimeout(() => {
+                    botReply("Ayubowan! 🙏 I am the **Sasnaka AI**. Ask me anything about our seminars, history, or how to join!");
+                }, 800);
+            }
+        });
+
+        // ============================================
+        // 4. CORE INTERFACE LOGIC
+        // ============================================
+        function toggleChat() {
+            state.isOpen = !state.isOpen;
+            if (state.isOpen) {
+                els.window.classList.remove('scale-90', 'opacity-0', 'pointer-events-none');
+                els.openIcon.classList.add('hidden');
+                els.closeIcon.classList.remove('hidden');
+                setTimeout(() => els.input.focus(), 300);
+                scrollToBottom();
+            } else {
+                els.window.classList.add('scale-90', 'opacity-0', 'pointer-events-none');
+                els.openIcon.classList.remove('hidden');
+                els.closeIcon.classList.add('hidden');
+            }
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+            }
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+
+        function handleSend() {
+            const text = els.input.value.trim();
+            if (!text && !state.currentFile) return;
+
+            let displayMsg = text;
+            if (state.currentFile) displayMsg += `<br><span class="text-xs opacity-75 flex items-center gap-1 mt-1"><i class="w-3 h-3" data-lucide="paperclip"></i> ${state.currentFile.name}</span>`;
+            
+            appendMessage('user', displayMsg);
+            
+            els.input.value = '';
+            els.input.style.height = 'auto';
+            clearFile();
+
+            showTyping(true);
+            
+            // CALL THE REAL AI API
+            callGeminiAI(text);
+        }
+
+        // ============================================
+        // 5. GEMINI API INTEGRATION
+        // ============================================
+        async function callGeminiAI(userMessage) {
+            
+            // Check if user set the key
+            if(CONFIG.apiKey.includes("PASTE_YOUR_KEY")) {
+                setTimeout(() => {
+                    botReply("⚠️ **Setup Required:** Please open the code file (index.html) and paste your Google API Key in line 160.");
+                }, 1000);
+                return;
+            }
+
+            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CONFIG.apiKey}`;
+
+            const requestBody = {
+                contents: [
+                    {
+                        parts: [
+                            { text: SYSTEM_PROMPT + "\n\nUser: " + userMessage }
+                        ]
+                    }
+                ]
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: Failed to connect to Google.`);
+                }
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error.message);
+                }
+
+                // Extract AI Text
+                const aiText = data.candidates[0].content.parts[0].text;
+                
+                // Show Response
+                botReply(aiText);
+
+                // Check for keywords to trigger Rich Cards (Hybrid Approach)
+                if(aiText.toLowerCase().includes("whatsapp") || aiText.toLowerCase().includes("contact")) {
+                    showContactCard();
+                }
+
+            } catch (error) {
+                console.error("AI Error:", error);
+                botReply("Sorry, I'm having trouble connecting to the server right now. 😓 Please check your internet or API Key.");
+            }
+        }
+
+        // ============================================
+        // 6. RENDERING & HELPERS
+        // ============================================
+        function appendMessage(sender, htmlContent) {
+            const div = document.createElement('div');
+            div.className = `msg-animate flex w-full ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+            
+            // Parse Markdown for bot, simple sanitize for user
+            let finalContent = htmlContent;
+            if(sender === 'bot') {
+                finalContent = marked.parse(htmlContent); // Convert **bold** to <b>
+            }
+
+            // Sanitize
+            const cleanContent = DOMPurify.sanitize(finalContent); 
+
+            if (sender === 'user') {
+                div.innerHTML = `<div class="bg-blue-600 text-white rounded-2xl rounded-tr-none py-3 px-4 max-w-[85%] shadow-sm text-sm break-words">${cleanContent}</div>`;
+            } else {
+                div.innerHTML = `
+                    <div class="flex gap-2 max-w-[90%]">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex-shrink-0 flex items-center justify-center text-blue-700 text-xs font-bold border border-blue-200 self-end mb-1">AI</div>
+                        <div class="flex flex-col gap-1">
+                            <div class="bg-white border border-gray-200 text-gray-800 rounded-2xl rounded-tl-none py-3 px-4 shadow-sm text-sm leading-relaxed break-words prose">
+                                ${cleanContent}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            els.messages.appendChild(div);
+            lucide.createIcons();
+            scrollToBottom();
+            saveHistory();
+        }
+
+        function botReply(text) {
+            showTyping(false);
+            appendMessage('bot', text);
+        }
+
+        function showContactCard() {
+            // Helper to inject the rich card if the AI mentions contact
+            const lastMsgContainer = els.messages.lastElementChild.querySelector('.flex-col');
+            if(!lastMsgContainer) return;
+
+            const cardHtml = `
+                <div class="mt-2 w-full max-w-[240px] bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden transform transition-all hover:shadow-lg">
+                    <div class="p-3 bg-green-50">
+                        <h4 class="font-bold text-gray-800 text-sm flex items-center gap-2"><i data-lucide="message-circle" class="w-4 h-4 text-green-600"></i> WhatsApp Us</h4>
+                        <p class="text-xs text-gray-500 mt-1">Chat directly with our team.</p>
+                        <a href="https://wa.me/${CONFIG.whatsappNumber}" target="_blank" class="block mt-3 text-center bg-green-500 text-white text-xs font-bold py-2 rounded-lg hover:bg-green-600 transition-colors">Open WhatsApp</a>
+                    </div>
+                </div>
+            `;
+            const cardDiv = document.createElement('div');
+            cardDiv.innerHTML = cardHtml;
+            lastMsgContainer.appendChild(cardDiv);
+            lucide.createIcons();
+            scrollToBottom();
+        }
+
+        function showTyping(show) {
+            state.isTyping = show;
+            if (show) { els.typingIndicator.classList.remove('hidden'); scrollToBottom(); } 
+            else { els.typingIndicator.classList.add('hidden'); }
+        }
+
+        function scrollToBottom() {
+            setTimeout(() => { els.messages.scrollTop = els.messages.scrollHeight; }, 50);
+        }
+
+        // --- File & History Utils ---
+        function triggerFileUpload() { els.fileInput.click(); }
+        function handleFileSelect(input) {
+            if (input.files && input.files[0]) {
+                state.currentFile = input.files[0];
+                els.fileName.textContent = input.files[0].name;
+                els.filePreview.classList.remove('hidden');
+                els.input.focus();
+            }
+        }
+        function clearFile() { state.currentFile = null; els.fileInput.value = ''; els.filePreview.classList.add('hidden'); }
+        function saveHistory() { localStorage.setItem(CONFIG.storageKey, els.messages.innerHTML); }
+        function loadHistory() {
+            const history = localStorage.getItem(CONFIG.storageKey);
+            if (history) { els.messages.innerHTML = history; scrollToBottom(); }
+        }
+        function clearChatHistory() {
+            if(confirm("Clear chat?")) {
+                localStorage.removeItem(CONFIG.storageKey);
+                els.messages.innerHTML = '<div class="text-center text-xs text-gray-400 my-4">Chat Cleared</div>';
+                botReply("Memory cleared. I'm ready for new questions!");
+            }
+        }
+    </script>
+</body>
+</html>
