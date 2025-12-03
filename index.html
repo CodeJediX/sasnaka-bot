@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Sasnaka Sansada | AI Support</title>
+<title>GeoVision LK | Dashboard Support</title>
 
 <!-- Fonts & Icons -->
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
@@ -13,25 +13,25 @@
 
 <style>
     :root {
-        --primary: #3b82f6;       
-        --primary-dark: #2563eb; 
-        --accent: #06b6d4;        
-        --gradient: linear-gradient(135deg, #3b82f6, #06b6d4);
-        --glass-bg: rgba(255, 255, 255, 0.92);
+        --primary: #0f172a;        /* Dark Navy for Data/Corporate feel */
+        --primary-dark: #020617; 
+        --accent: #3b82f6;        /* Bright Blue for Tech feel */
+        --gradient: linear-gradient(135deg, #0f172a, #3b82f6);
+        --glass-bg: rgba(255, 255, 255, 0.95);
         --glass-border: rgba(255, 255, 255, 0.6);
-        --shadow-lg: 0 20px 50px rgba(37, 99, 235, 0.25);
+        --shadow-lg: 0 20px 50px rgba(15, 23, 42, 0.25);
     }
 
     body {
         font-family: 'Outfit', 'Noto Sans Sinhala', 'Noto Sans Tamil', sans-serif;
-        background: #f0f4f8; 
+        background: #f8fafc; 
         margin: 0;
         height: 100vh;
-        /* Cool Grid Background */
+        /* Tech Grid Background */
         background-image: 
-            linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
-        background-size: 30px 30px;
+            linear-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+        background-size: 40px 40px;
     }
 
     /* Floating Button */
@@ -40,7 +40,7 @@
         width: 65px; height: 65px;
         background: var(--gradient);
         border-radius: 50%; color: white; border: none; cursor: pointer;
-        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4); z-index: 1000;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.4); z-index: 1000;
         display: flex; align-items: center; justify-content: center; font-size: 26px;
         transition: all 0.4s; animation: pulse-blue 2s infinite;
     }
@@ -104,8 +104,9 @@
     @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     
     .bot-message { background: white; color: #1e293b; border-bottom-left-radius: 4px; border: 1px solid #e2e8f0; }
-    .bot-message a { color: var(--primary); font-weight: 600; text-decoration: none; }
+    .bot-message a { color: var(--accent); font-weight: 600; text-decoration: none; }
     .bot-message a:hover { text-decoration: underline; }
+    .bot-message strong { color: var(--primary); }
     .user-message { background: var(--gradient); color: white; border-bottom-right-radius: 4px; margin-left: auto; }
 
     /* Suggestions */
@@ -117,7 +118,7 @@
         background: white; border: 1px solid #e2e8f0; padding: 6px 12px; border-radius: 20px;
         font-size: 12px; color: #64748b; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 5px;
     }
-    .chip:hover { background: var(--primary); color: white; border-color: var(--primary); transform: translateY(-2px); }
+    .chip:hover { background: var(--accent); color: white; border-color: var(--accent); transform: translateY(-2px); }
 
     /* Input */
     .input-area { padding: 15px; background: white; display: flex; gap: 10px; align-items: center; border-top: 1px solid #f1f5f9; }
@@ -125,7 +126,7 @@
         flex: 1; padding: 12px 16px; border-radius: 25px; border: 2px solid #e2e8f0;
         outline: none; font-family: inherit; font-size: 14px; transition: all 0.3s; background: #f8fafc;
     }
-    input:focus { border-color: var(--primary); background: white; }
+    input:focus { border-color: var(--accent); background: white; }
     #send-btn {
         background: var(--gradient); color: white; border: none; width: 45px; height: 45px; border-radius: 50%;
         cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;
@@ -137,26 +138,14 @@
     .dot:nth-child(2) { animation-delay: -1.1s; } .dot:nth-child(3) { animation-delay: -0.9s; }
     @keyframes wave { 0%, 60%, 100% { transform: initial; } 30% { transform: translateY(-5px); } }
 
-    /* Donation Modal */
-    .modal-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6);
-        z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);
-    }
-    .modal-content {
-        width: 90%; max-width: 500px; height: 80%; background: white; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; animation: popIn 0.3s ease;
-    }
-    @keyframes popIn { from{transform:scale(0.8); opacity:0;} to{transform:scale(1); opacity:1;} }
-    .modal-header { padding: 15px; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
-    .close-modal { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
-
 </style>
 </head>
 <body>
 
     <!-- Website Placeholder -->
     <div style="height: 100vh; display: flex; align-items: center; justify-content: center; color: #64748b; flex-direction: column; text-align: center;">
-        <h1 style="font-size: 3rem; color: #1e293b; margin-bottom: 10px;">Sasnaka Sansada</h1>
-        <p>Empowering Future Generations.</p>
+        <h1 style="font-size: 3rem; color: #0f172a; margin-bottom: 10px;">GeoVision LK</h1>
+        <p style="font-size: 1.2rem;">Interactive 3D Data Visualization Dashboard</p>
         <p style="margin-top: 50px; color: #3b82f6;">(Click the blue button bottom-right!)</p>
     </div>
 
@@ -169,8 +158,8 @@
     <div class="chat-widget" id="chat-widget">
         <div class="header">
             <div class="header-text">
-                <h2>Sasnaka AI</h2>
-                <p>Online Support</p>
+                <h2>GeoVision Support</h2>
+                <p>Dashboard Assistant</p>
             </div>
             <div class="header-actions">
                 <select id="lang-select" class="lang-select" onchange="changeLanguage()">
@@ -178,7 +167,6 @@
                     <option value="si">SI</option>
                     <option value="ta">TA</option>
                 </select>
-                <button class="action-btn" onclick="window.open('https://wa.me/94724401111', '_blank')" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></button>
                 <button class="action-btn" onclick="toggleChat()"><i class="fa-solid fa-chevron-down"></i></button>
             </div>
         </div>
@@ -192,24 +180,8 @@
         <div class="suggestions" id="suggestions-area"></div>
 
         <div class="input-area">
-            <input id="user-input" type="text" placeholder="Ask a question..." />
+            <input id="user-input" type="text" placeholder="Ask about the dashboard..." />
             <button id="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
-        </div>
-    </div>
-
-    <!-- Donation Modal -->
-    <div class="modal-overlay" id="donation-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span id="donate-title">Make a Donation</span>
-                <button class="close-modal" onclick="closeDonationModal()">&times;</button>
-            </div>
-            <!-- PASTE YOUR GOOGLE FORM LINK HERE BELOW -->
-            <iframe 
-                src="https://docs.google.com/forms/d/e/1FAIpQLSfD-EfM7C53Qq3L8z6k0k_v0/viewform?embedded=true" 
-                width="100%" height="100%" frameborder="0" marginheight="0" marginwidth="0">
-                Loading…
-            </iframe>
         </div>
     </div>
 
@@ -217,25 +189,47 @@
 // ==========================================
 // 1. CONFIGURATION
 // ==========================================
-// IMPORTANT: Generate a NEW API key from Google AI Studio and paste it inside the quotes below.
+// IMPORTANT: Keep the key as requested.
 const API_KEY = "AIzaSyAYL2HePusRySc2lZRFhnHIAEJHF1yfLGo"; 
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-// Knowledge Base
+// Knowledge Base based on "GeoVision-LK-Dashboard-Interactive-3D-Data-Visualization.pdf"
 const BASE_KNOWLEDGE = `
-You are the official AI Assistant for "Sasnaka Sansada", a non-profit in Sri Lanka.
-Your persona: Mentor, Encouraging, Knowledgeable, and Kind.
+You are the AI Support Assistant for "GeoVision LK", a project developing an Interactive 3D Field Reporting Dashboard.
+Your persona: Professional, Tech-savvy, and Helpful.
 
---- KEY INFO ---
-1. **Name:** Sasnaka Sansada.
-2. **Hotline:** 072 440 1111.
-3. **WhatsApp:** [Click to Chat](https://wa.me/94724401111).
-4. **Mission:** Empowering youth via seminars (O/L, A/L) and scholarships.
+--- PROJECT OVERVIEW ---
+The GeoVision LK Dashboard is a web-based tool designed to transform static field reports (spreadsheets) into a dynamic, interactive 3D map.
+Target Audience: Program managers, operational teams, and non-technical stakeholders.
+Goal: To act as a "visual operations control room" for instant insights.
 
---- RULES ---
-- If asked for "Contact", give 0724401111 and the WhatsApp link.
-- If asked a Subject Question (Math/Science), answer it as a tutor.
-- If asked about Donation, say "Click the Donate button".
+--- KEY FEATURES ---
+1. **Interactive 3D Map:** Users can see operations geographically. Hover/click regions for details.
+2. **Unified Interface:** All KPIs (Key Performance Indicators) and summaries in one view.
+3. **District Detail Cards:** Pop-ups with charts, contact info, and PDF/photo attachments for specific districts.
+4. **Switchable Views:** Toggle between "This Week" vs "Cumulative" data, or filter by program type.
+5. **Simple Data Input:** Supports manual forms and Excel/CSV imports.
+
+--- BENEFITS ---
+- **Faster Decisions:** Identify hotspots and gaps instantly without reading spreadsheets.
+- **Clear Storytelling:** Visual data helps communicate impact to donors/partners.
+- **Simplified Reporting:** Reduces time spent creating manual quarterly reports.
+
+--- TIMELINE (11 Weeks) ---
+- **Weeks 1-2:** Planning & Design (Mockups, Requirements).
+- **Weeks 3-5:** Core Development (Main map interface).
+- **Weeks 6-7:** Feature Expansion (Detail panels, charts).
+- **Week 8:** Data Integration (Import tools).
+- **Weeks 9-10:** Testing & Optimization (Mobile responsiveness).
+- **Week 11:** Deployment & Handover.
+
+--- RISKS & MITIGATION ---
+1. **Inconsistent Data:** Mitigated by validation checks and cleaning tools.
+2. **Slow Map Loading:** Mitigated by using optimized 3D models and 2D fallbacks.
+3. **Low Adoption:** Mitigated by mandatory training and simple 1-page guides.
+
+--- CONTACT ---
+For admin access or technical support, please contact the Project Owner or the System Administrator.
 `;
 
 // --- UI ELEMENTS ---
@@ -245,7 +239,6 @@ const chatHistory = document.getElementById('chat-history');
 const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 const typingInd = document.getElementById('typing-indicator');
-const donationModal = document.getElementById('donation-modal');
 const langSelect = document.getElementById('lang-select');
 const suggestionsArea = document.getElementById('suggestions-area');
 
@@ -255,36 +248,33 @@ let currentLang = 'en';
 // --- TRANSLATIONS ---
 const translations = {
     en: {
-        welcome: "Ayubowan! Welcome to Sasnaka Sansada. 💙<br>How can I help you today?",
-        placeholder: "Ask a question...",
-        donateTitle: "Make a Donation",
+        welcome: "Hello! I am the GeoVision Assistant. 🌍<br>Ask me about the new 3D Dashboard features, timeline, or benefits.",
+        placeholder: "Ask about the dashboard...",
         chips: [
-            { text: "Who are we?", icon: "fa-circle-question", action: "text" },
-            { text: "Contact Us", icon: "fa-phone", action: "text" },
-            { text: "Scholarships", icon: "fa-graduation-cap", action: "text" },
-            { text: "Donate", icon: "fa-heart", action: "modal", style: "color:var(--primary); border-color:var(--primary);" }
+            { text: "Main Features", icon: "fa-list-check" },
+            { text: "Project Timeline", icon: "fa-calendar" },
+            { text: "Why use this?", icon: "fa-lightbulb" },
+            { text: "Potential Risks", icon: "fa-triangle-exclamation" }
         ]
     },
     si: {
-        welcome: "ආයුබෝවන්! සස්නක සංසදයට සාදරයෙන් පිළිගනිමු. 💙<br>ඔබට කෙසේද උදව් කළ හැක්කේ?",
-        placeholder: "ප්‍රශ්නයක් අසන්න...",
-        donateTitle: "ආධාර ලබාදීම",
+        welcome: "ආයුබෝවන්! GeoVision සහායක වෙත සාදරයෙන් පිළිගනිමු. 🌍<br>නව 3D Dashboard හි විශේෂාංග හෝ කාලරාමුව ගැන විමසන්න.",
+        placeholder: "ඩෑෂ්බෝඩ් එක ගැන අසන්න...",
         chips: [
-            { text: "අපි කවුද?", icon: "fa-circle-question", action: "text" },
-            { text: "අප අමතන්න", icon: "fa-phone", action: "text" },
-            { text: "ශිෂ්‍යත්ව", icon: "fa-graduation-cap", action: "text" },
-            { text: "ආධාර", icon: "fa-heart", action: "modal", style: "color:var(--primary); border-color:var(--primary);" }
+            { text: "ප්‍රධාන අංග", icon: "fa-list-check" },
+            { text: "කාලරාමුව", icon: "fa-calendar" },
+            { text: "වාසි මොනවාද?", icon: "fa-lightbulb" },
+            { text: "අවදානම්", icon: "fa-triangle-exclamation" }
         ]
     },
     ta: {
-        welcome: "வணக்கம்! சாஸ்னக சன்சதாவிற்கு வரவேற்கிறோம். 💙<br>உங்களுக்கு நான் எவ்வாறு உதவ முடியும்?",
-        placeholder: "கேள்வி கேளுங்கள்...",
-        donateTitle: "நன்கொடை",
+        welcome: "வணக்கம்! GeoVision உதவியாளருக்கு வரவேற்கிறோம். 🌍<br>புதிய 3D Dashboard அம்சங்கள் பற்றி கேட்கவும்.",
+        placeholder: "டாஷ்போர்டு பற்றி கேட்கவும்...",
         chips: [
-            { text: "நாங்கள் யார்?", icon: "fa-circle-question", action: "text" },
-            { text: "தொடர்பு", icon: "fa-phone", action: "text" },
-            { text: "கல்வி உதவி", icon: "fa-graduation-cap", action: "text" },
-            { text: "நன்கொடை", icon: "fa-heart", action: "modal", style: "color:var(--primary); border-color:var(--primary);" }
+            { text: "முக்கிய அம்சங்கள்", icon: "fa-list-check" },
+            { text: "காலக்கெடு", icon: "fa-calendar" },
+            { text: "பயன்கள்", icon: "fa-lightbulb" },
+            { text: "இடர்கள்", icon: "fa-triangle-exclamation" }
         ]
     }
 };
@@ -293,7 +283,6 @@ const translations = {
 function renderUI(lang) {
     const t = translations[lang];
     userInput.placeholder = t.placeholder;
-    document.getElementById('donate-title').textContent = t.donateTitle;
     chatHistory.innerHTML = ''; 
     appendMessage(t.welcome, false);
     suggestionsArea.innerHTML = '';
@@ -301,10 +290,9 @@ function renderUI(lang) {
         const div = document.createElement('div');
         div.className = 'chip';
         div.innerHTML = `<i class="fa-solid ${chip.icon}"></i> ${chip.text}`;
-        if(chip.style) div.style.cssText = chip.style;
         div.onclick = () => {
-            if(chip.action === 'modal') openDonationModal();
-            else { userInput.value = chip.text; sendMessage(); }
+            userInput.value = chip.text; 
+            sendMessage(); 
         };
         suggestionsArea.appendChild(div);
     });
@@ -339,7 +327,7 @@ function appendMessage(text, isUser) {
     chatHistory.scrollTop = chatHistory.scrollHeight;
 }
 
-// --- DIRECT API CALL (No Server) ---
+// --- DIRECT API CALL ---
 async function sendMessage() {
     const text = userInput.value.trim();
     if (!text) return;
@@ -358,7 +346,6 @@ async function sendMessage() {
     const fullPrompt = `${BASE_KNOWLEDGE}\n\n${langInstruction}`;
 
     try {
-        // USING GEMINI 2.5 FLASH AS REQUESTED
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
         
         const response = await fetch(url, {
@@ -386,10 +373,6 @@ async function sendMessage() {
         console.error(err);
     }
 }
-
-function openDonationModal() { donationModal.style.display = 'flex'; }
-function closeDonationModal() { donationModal.style.display = 'none'; }
-donationModal.addEventListener('click', (e) => { if(e.target === donationModal) closeDonationModal(); });
 
 sendBtn.addEventListener('click', sendMessage);
 userInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
